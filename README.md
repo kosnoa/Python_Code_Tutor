@@ -91,3 +91,89 @@ When you are ready for launch, this can be moved to any free hosting:
 
 - Backend: Render, Fly, or Railway.
 - Frontend: Vercel.
+
+## 5) Open source + GitHub publish
+
+Goal: publish without committing secrets.
+
+1. Verify secrets are ignored
+
+```bash
+cat .gitignore
+git status --short
+```
+
+You should not see:
+- `backend/.env`
+- `backend/.env.local`
+- `frontend/.env`
+- `frontend/.env.local`
+- `.env`
+- `.env.local`
+- `.venv`
+
+If you see any, remove them from staging/history before publishing.
+
+2. Create GitHub repo and push
+
+```bash
+git init
+git branch -M main
+git add README.md LICENSE backend frontend .gitignore render.yaml backend/.env.example frontend/.env.example
+git commit -m "AI-assisted Python feedback app V1"
+git remote add origin git@github.com:<your-github-username>/<your-repo-name>.git
+git push -u origin main
+```
+
+If you already have a repo:
+
+```bash
+git remote add origin git@github.com:<your-github-username>/<your-repo-name>.git
+git add README.md LICENSE backend frontend .gitignore render.yaml backend/.env.example frontend/.env.example
+git commit -m "AI-assisted Python feedback app V1"
+git push
+```
+
+## 6) Free web deployment (recommended)
+
+Use this flow:
+- Backend on Render (API)
+- Frontend on Vercel (UI)
+
+### 6.1 Deploy backend on Render
+
+1. Go to Render and create a **new Web Service** from your GitHub repo.
+2. Render will detect `render.yaml` automatically.
+3. In service settings, set these values:
+   - `GEMINI_API_KEY`: your Google AI Studio key
+   - `ALLOWED_ORIGINS`: your frontend URL from Vercel (for example `https://your-app.vercel.app`)
+4. Deploy.
+
+After deploy, note your API URL:
+`https://<render-service-name>.onrender.com`
+
+Test endpoint:
+
+```bash
+curl https://<render-service-name>.onrender.com/healthz
+```
+
+### 6.2 Deploy frontend on Vercel
+
+1. In Vercel, click **Add New Project** and import the repo.
+2. Set **Root Directory** to `frontend`.
+3. Add environment variable:
+
+```text
+NEXT_PUBLIC_API_URL=https://<render-service-name>.onrender.com/api/analyze
+```
+
+4. Deploy.
+
+If deploy works, share the Vercel URL publicly and your GitHub repo will act as the open-source source of truth.
+
+### 6.3 Share
+
+- Share frontend URL from Vercel.
+- Keep repo public to allow users to see source (without secrets).
+- Keep `.env` files private and never commit them.

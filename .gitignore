@@ -2,9 +2,12 @@ __pycache__/
 *.py[cod]
 *.so
 *.log
+.env
 
+.venv/
 backend/.venv/
 backend/.env
+backend/.env.local
 backend/__pycache__/
 backend/.pytest_cache/
 
@@ -12,4 +15,3 @@ frontend/.next/
 frontend/node_modules/
 frontend/.env.local
 frontend/.env
-
