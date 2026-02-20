@@ -1,0 +1,137 @@
+:root {
+  --bg: linear-gradient(125deg, #f5f7ff, #fef9f2);
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #d9dbe2;
+  --accent: #2f6de3;
+  --accent-2: #1f2937;
+  --error: #b91c1c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: "Trebuchet MS", "Gill Sans", Verdana, Tahoma, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.page-shell {
+  width: min(960px, 92vw);
+  margin: 32px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+header h1 {
+  margin: 0;
+  font-family: "Trebuchet MS", Tahoma, sans-serif;
+}
+
+header p {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+textarea {
+  width: 100%;
+  min-height: 280px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 12px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  margin-top: 8px;
+  resize: vertical;
+}
+
+.controls {
+  margin-top: 14px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: end;
+}
+
+.controls label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.inline-checkbox {
+  display: inline-flex;
+}
+
+button {
+  margin-top: 18px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: var(--accent-2);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.results h2 {
+  margin-top: 18px;
+}
+
+.error-banner {
+  background: #fee2e2;
+  color: var(--error);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+code {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px;
+  background: #f3f4f6;
+  border-radius: 6px;
+}
+
+.solution-block {
+  margin-top: 12px;
+  background: #f9fafb;
+  border: 1px dashed #cbd5e1;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.solution-block pre {
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e2e8f0;
+}
