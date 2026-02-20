@@ -1,54 +1,62 @@
 # AI-Assisted Python Code Feedback (V1)
 
-This is a local-first web product for beginner-to-intermediate Python learners.
-It provides:
+AI-Assisted Python Code Feedback is a web-based tutor for beginner-to-intermediate Python learners.
+It analyzes pasted Python code and returns structured, beginner-friendly feedback designed for learning
+instead of just providing a direct answer.
 
-- static Python analysis (syntax checks + basic runtime-risk checks),
-- structured, beginner-friendly explanations,
-- 2-3 hint levels,
-- optional solved version (via Gemini),
-- optional time/space complexity hints.
+## What this project does
 
-V1 is anonymous and no code history is stored.
+- Parses and analyzes submitted Python code for common issues.
+- Reports errors in a teachable format:
+  - What went wrong (summary)
+  - Why it happened
+  - Hints and next steps
+  - Optional corrected code
+  - Key concepts and optional complexity/best-practice notes
+- Supports two feedback modes:
+  - Guided mode (default): hints + optional corrected version
+  - Diagnostic mode: minimal quick-fix signal without full tutoring extras
 
-## 1) Backend setup (FastAPI)
+## Architecture
+
+- Backend: FastAPI (`/backend`)
+- Frontend: Next.js + React (`/frontend`)
+- LLM provider: Google Gemini API (used for richer feedback)
+- Execution model: Static-only checks in V1 (no server-side code execution)
+
+## Local setup
+
+### Backend
 
 ```bash
 cd backend
+cp .env.example .env
+# Add your Gemini key to backend/.env
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-```
-
-Edit `backend/.env` and replace:
-
-```
-GEMINI_API_KEY=PASTE_YOUR_GEMINI_API_KEY_HERE
-```
-
-Start backend:
-
-```bash
 uvicorn main:app --reload --port 8000
 ```
 
-## 2) Frontend setup (Next.js + React)
+### Frontend
 
 ```bash
 cd frontend
-npm install
 cp .env.example .env.local
+# Ensure NEXT_PUBLIC_API_URL points to your backend /api/analyze endpoint
+npm install
 npm run dev
 ```
 
-The app runs at `http://localhost:3000`.
+Backend defaults to: `http://127.0.0.1:8000`
 
-## 3) API contract (current)
+Frontend runs at: `http://localhost:3000`
+
+## API contract
 
 `POST /api/analyze`
 
-Request JSON:
+### Request
 
 ```json
 {
@@ -60,120 +68,56 @@ Request JSON:
 }
 ```
 
-Legacy clients may still send `hint_level` instead of `hint_depth`.
+- `help_mode`: `guided` or `diagnostic`
+- `hint_depth`: `1 | 2 | 3` (only meaningful for guided mode)
 
-Response JSON shape:
+### Response
 
 ```json
 {
   "summary": "...",
   "error_clusters": [],
-  "hints": [{"level":"beginner","text":"..."}],
-  "full_solution": {"code":"...","explanation":"..."},
+  "hints": [
+    { "level": "beginner", "text": "..." }
+  ],
+  "full_solution": { "code": "...", "explanation": "..." },
   "key_concepts": [],
-  "complexity": {"time":"...", "space":"..."},
+  "complexity": { "time": "...", "space": "..." },
   "best_practices": []
 }
 ```
 
-`help_mode` options:
+## Environment and secrets
 
-- `guided` (default): hints and optional fixed code path.
-- `diagnostic`: quick issue report with no hints/solution and minimal teaching extras.
+The project uses `.env` files for runtime configuration and API keys.
 
-## 4) Why this is safe for V1
+Required runtime values:
+- `backend/.env`:
+  - `GEMINI_API_KEY`
+  - Optional: `GEMINI_MODEL`, `GEMINI_TIMEOUT_SECONDS`, `ALLOWED_ORIGINS`, `MAX_CODE_CHARS`
+- `frontend/.env.local`:
+  - `NEXT_PUBLIC_API_URL`
 
-- Static-only checks by default (no execution in this version).
-- No user accounts and no persistence.
-- API key is loaded from environment only.
+## Deployment (free hosting path)
 
-When you are ready for launch, this can be moved to any free hosting:
+This repo is designed for:
 
-- Backend: Render, Fly, or Railway.
-- Frontend: Vercel.
+- Render: backend API service
+- Vercel: frontend web app
 
-## 5) Open source + GitHub publish
+### Render backend
 
-Goal: publish without committing secrets.
+1. Use the `render.yaml` file for automatic service setup.
+2. Set environment variable `GEMINI_API_KEY` in Render.
+3. Set `ALLOWED_ORIGINS` to the Vercel frontend URL.
 
-1. Verify secrets are ignored
+### Vercel frontend
 
-```bash
-cat .gitignore
-git status --short
-```
+1. Set project root to `frontend`.
+2. Add env var:
+   - `NEXT_PUBLIC_API_URL=https://<render-service>.onrender.com/api/analyze`
 
-You should not see:
-- `backend/.env`
-- `backend/.env.local`
-- `frontend/.env`
-- `frontend/.env.local`
-- `.env`
-- `.env.local`
-- `.venv`
 
-If you see any, remove them from staging/history before publishing.
+## License
 
-2. Create GitHub repo and push
-
-```bash
-git init
-git branch -M main
-git add README.md LICENSE backend frontend .gitignore render.yaml backend/.env.example frontend/.env.example
-git commit -m "AI-assisted Python feedback app V1"
-git remote add origin git@github.com:<your-github-username>/<your-repo-name>.git
-git push -u origin main
-```
-
-If you already have a repo:
-
-```bash
-git remote add origin git@github.com:<your-github-username>/<your-repo-name>.git
-git add README.md LICENSE backend frontend .gitignore render.yaml backend/.env.example frontend/.env.example
-git commit -m "AI-assisted Python feedback app V1"
-git push
-```
-
-## 6) Free web deployment (recommended)
-
-Use this flow:
-- Backend on Render (API)
-- Frontend on Vercel (UI)
-
-### 6.1 Deploy backend on Render
-
-1. Go to Render and create a **new Web Service** from your GitHub repo.
-2. Render will detect `render.yaml` automatically.
-3. In service settings, set these values:
-   - `GEMINI_API_KEY`: your Google AI Studio key
-   - `ALLOWED_ORIGINS`: your frontend URL from Vercel (for example `https://your-app.vercel.app`)
-4. Deploy.
-
-After deploy, note your API URL:
-`https://<render-service-name>.onrender.com`
-
-Test endpoint:
-
-```bash
-curl https://<render-service-name>.onrender.com/healthz
-```
-
-### 6.2 Deploy frontend on Vercel
-
-1. In Vercel, click **Add New Project** and import the repo.
-2. Set **Root Directory** to `frontend`.
-3. Add environment variable:
-
-```text
-NEXT_PUBLIC_API_URL=https://<render-service-name>.onrender.com/api/analyze
-```
-
-4. Deploy.
-
-If deploy works, share the Vercel URL publicly and your GitHub repo will act as the open-source source of truth.
-
-### 6.3 Share
-
-- Share frontend URL from Vercel.
-- Keep repo public to allow users to see source (without secrets).
-- Keep `.env` files private and never commit them.
+MIT. See `LICENSE`.
